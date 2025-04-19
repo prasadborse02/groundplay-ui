@@ -32,11 +32,31 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     // Handle token expiration or unauthorized access
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('playerId');
-      window.location.href = '/login';
+    if (error.response) {
+      // Log detailed error information in development for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.group('API Error');
+        console.error('Status:', error.response.status);
+        console.error('URL:', error.config.url);
+        console.error('Method:', error.config.method.toUpperCase());
+        
+        if (error.response.data) {
+          console.error('Error Code:', error.response.data.code || 'N/A');
+          console.error('Error Message:', error.response.data.message || 'N/A');
+        }
+        
+        console.error('Full Response:', error.response);
+        console.groupEnd();
+      }
+      
+      // Handle authentication errors
+      if (error.response.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('playerId');
+        window.location.href = '/login';
+      }
     }
+    
     return Promise.reject(error);
   }
 );

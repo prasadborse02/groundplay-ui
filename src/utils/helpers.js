@@ -75,8 +75,14 @@ export const calculateEndTime = (startTime, durationHours, durationMinutes) => {
     if (safeHours > 0) endDate = addHours(endDate, safeHours);
     if (safeMinutes > 0) endDate = addMinutes(endDate, safeMinutes);
     
-    // Format for input
-    return formatDateForInput(endDate.toISOString());
+    // Format directly for input without conversion
+    const year = endDate.getFullYear();
+    const month = String(endDate.getMonth() + 1).padStart(2, '0');
+    const day = String(endDate.getDate()).padStart(2, '0');
+    const hourStr = String(endDate.getHours()).padStart(2, '0');
+    const minuteStr = String(endDate.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hourStr}:${minuteStr}`;
   } catch (error) {
     return '';
   }
@@ -100,6 +106,61 @@ export const copyToClipboard = async (text) => {
 
 // Extract error message from API response
 export const getErrorMessage = (error) => {
+  // If response contains both code and message, we'll format based on the code
+  if (error.response?.data?.code) {
+    const errorCode = error.response.data.code;
+    const message = error.response.data.message || '';
+    
+    // Format specific error messages based on error codes
+    switch (errorCode) {
+      case 'PLAYER_NOT_AVAILABLE':
+        return 'You already have a game scheduled during this time. Please check your calendar.';
+        
+      case 'GAME_FULL':
+        return 'This game is already full. No more players can enroll.';
+        
+      case 'GAME_CONFLICT':
+        return 'Unable to join this game due to a scheduling conflict.';
+        
+      case 'INVALID_CREDENTIALS':
+        return 'The phone number or password you entered is incorrect.';
+        
+      case 'AUTHENTICATION_ERROR':
+        return 'Authentication failed. Please sign in again.';
+        
+      case 'ACCESS_DENIED':
+      case 'UNAUTHORIZED_OPERATION':
+        return 'You don\'t have permission to perform this action.';
+        
+      case 'RESOURCE_NOT_FOUND':
+        return 'The requested resource could not be found.';
+        
+      case 'RESOURCE_ALREADY_EXISTS':
+        return 'This resource already exists.';
+        
+      case 'VALIDATION_ERROR':
+        return message || 'Please check your inputs and try again.';
+        
+      default:
+        // Return the server message if available, otherwise generic message based on status code
+        if (message) {
+          return message;
+        } else if (error.response?.status) {
+          // Format message based on status code
+          switch (error.response.status) {
+            case 400: return 'Invalid request. Please check your inputs.';
+            case 401: return 'Please log in to continue.';
+            case 403: return 'You don\'t have permission to perform this action.';
+            case 404: return 'The requested resource could not be found.';
+            case 409: return 'There was a conflict with your request.';
+            case 500: return 'A server error occurred. Please try again later.';
+            default: return 'Something went wrong. Please try again.';
+          }
+        }
+    }
+  }
+  
+  // Fallback to basic error handling if response format doesn't match
   return error.response?.data?.message || 
          error.message || 
          'Something went wrong. Please try again.';
@@ -241,3 +302,4 @@ const getCountryFlag = (countryCode) => {
     return '';
   }
 };
+

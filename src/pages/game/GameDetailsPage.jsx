@@ -10,7 +10,7 @@ import Button from '../../components/Button';
 import Alert from '../../components/Alert';
 import { gameService } from '../../api';
 import { 
-  formatTime, formatDate, 
+  formatTime, formatDate, getErrorMessage,
   getSportLabel, getShareableGameUrl, copyToClipboard 
 } from '../../utils/helpers';
 import { useAuth } from '../../context/AuthContext';
@@ -89,7 +89,17 @@ const GameDetailsPage = () => {
       setGame(updatedGame);
     } catch (err) {
       console.error('Error handling enrollment:', err);
-      setError('Failed to update enrollment. Please try again.');
+      setError(getErrorMessage(err));
+      
+      // If the error was due to game being full, refresh the game data to show correct count
+      if (err.response?.data?.code === 'GAME_FULL') {
+        try {
+          const updatedGame = await gameService.getGameDetails(id);
+          setGame(updatedGame);
+        } catch (refreshErr) {
+          console.error('Error refreshing game data:', refreshErr);
+        }
+      }
     } finally {
       setIsEnrollLoading(false);
     }

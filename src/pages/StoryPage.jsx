@@ -8,103 +8,112 @@ const StoryPage = () => {
         
         <div className="bg-white rounded-xl shadow-md overflow-hidden mb-12">
           <div className="h-64 bg-gradient-to-r from-primary to-accent flex items-center justify-center">
-            <h2 className="text-3xl font-bold text-white">How It All Began</h2>
+            <h2 className="text-3xl font-bold text-white">About the Project</h2>
           </div>
           
           <div className="p-8">
-            <div className="prose prose-lg max-w-none">
+            <div className="prose prose-lg max-w-none space-y-6">
               <p className="lead text-xl">
-                GroundPlay started from a simple problem: finding enough players for a casual weekend cricket match.
+                GroundPlay is a platform that helps sports enthusiasts find and organize local games.
               </p>
               
               <p>
-                As an avid sports enthusiast living in a new city, I often found myself struggling to gather enough players for a casual cricket match on weekends. Group chats would get chaotic, plans would fall through, and we'd end up with either too few players or miscommunications about time and location.
+                As a sports lover in a new city, I struggled to find enough players for weekend games. 
+                Group chats would get chaotic, plans would fall through, and we'd often end up with too few 
+                players or confusion about time and location. After experiencing this frustration repeatedly, 
+                I began to wonder if there was a better way to organize local sports games.
               </p>
               
               <p>
-                After experiencing this frustration repeatedly, I began to wonder if there was a better way to organize local sports games. I wanted something that would make it easy to:
-              </p>
-              
-              <ul>
-                <li>Find players interested in the same sports</li>
-                <li>Organize games with clear details about location, time, and required players</li>
-                <li>Allow people to easily join (or leave) games</li>
-                <li>Discover nearby games when I was free to play</li>
-              </ul>
-              
-              <p>
-                I looked for existing solutions but couldn't find anything that felt just right. Most platforms were either too focused on competitive leagues or too general as social networks. There wasn't a dedicated, easy-to-use platform specifically for organizing casual sports games.
+                That's when the idea for GroundPlay was born—a concept for a community-driven platform where 
+                sports enthusiasts could create, find, and join local games with minimal friction. The vision 
+                was to create something that felt light, accessible, and fun—removing the barriers that kept 
+                people from enjoying sports with others in their community.
               </p>
               
               <p>
-                That's when the idea for GroundPlay was born—a community-driven platform where sports enthusiasts could create, find, and join local games with minimal friction.
-              </p>
-              
-              <h3 className="text-2xl font-bold mt-8 mb-4">Building the Vision</h3>
-              
-              <p>
-                I started by sketching out the core features I wanted in the platform:
-              </p>
-              
-              <ul>
-                <li>A clean, intuitive interface that puts the focus on the games</li>
-                <li>Location-based discovery so players could find games nearby</li>
-                <li>Simple enrollment/unenrollment to manage participation</li>
-                <li>Support for various sports, starting with the most popular ones</li>
-              </ul>
-              
-              <p>
-                The goal was to create something that felt light, accessible, and fun—removing the barriers that kept people from enjoying sports with others in their community.
-              </p>
-              
-              <h3 className="text-2xl font-bold mt-8 mb-4">From Idea to Reality</h3>
-              
-              <p>
-                Building GroundPlay has been a journey of learning and iteration. As a hobby project, it's been developed with a focus on solving real problems rather than chasing trends or metrics.
+                With GroundPlay, players can find nearby pickup games based on location, create and manage 
+                their own games, and easily join or leave activities with just one click. The platform provides 
+                clear details about game location, time, required players, and current enrollment status. Users 
+                can browse games by sport type and proximity, while managing their player profile and game history.
               </p>
               
               <p>
-                The platform was built with modern web technologies, focusing on responsive design that works well on both desktop and mobile devices—because people need to check game details when they're on the go.
+                Building GroundPlay has been a journey of learning and iteration. As my personal hobby project, 
+                it's been developed with a focus on solving real problems while helping me improve my coding skills. 
+                The application uses modern web technologies, focusing on responsive design that works well on both 
+                desktop and mobile devices—because people need to check game details when they're on the go.
               </p>
               
               <p>
-                Early feedback from friends who tested the platform helped shape its features and user experience. Their input was invaluable in creating something that truly serves the needs of casual sports players.
+                The project is currently a prototype to demonstrate the concept, built as a personal learning 
+                exercise to explore location-based services and modern web technologies. Through this project, 
+                I've deepened my understanding of React and backend development with 
+                Kotlin and Spring Boot.
               </p>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-xl shadow-md overflow-hidden mb-12">
+          <div className="h-64 bg-gradient-to-r from-secondary to-accent flex items-center justify-center">
+            <h2 className="text-3xl font-bold text-white">Technical Implementation</h2>
+          </div>
+          
+          <div className="p-8">
+            <div className="prose prose-lg max-w-none space-y-6">              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 my-6">
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h4 className="text-xl font-bold mb-3">Frontend</h4>
+                  <ul className="space-y-2">
+                    <li>React with functional components</li>
+                    <li>Tailwind CSS for styling</li>
+                    <li>Context API for state management</li>
+                    <li>Vite for fast development</li>
+                    <li>React Router for navigation</li>
+                    <li>JWT authentication</li>
+                    <li>Leaflet for interactive maps</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h4 className="text-xl font-bold mb-3">Backend</h4>
+                  <ul className="space-y-2">
+                    <li>Kotlin with Spring Boot</li>
+                    <li>Spring Security with JWT</li>
+                    <li>Spring Data JPA</li>
+                    <li>PostgreSQL with PostGIS</li>
+                    <li>JTS Topology Suite</li>
+                    <li>Role-based access control</li>
+                    <li>Gradle build system</li>
+                  </ul>
+                </div>
+              </div>
               
-              <h3 className="text-2xl font-bold mt-8 mb-4">The Road Ahead</h3>
+              <h3 className="text-2xl font-bold mt-6 mb-4">Key Features Implementation</h3>
               
+              <h4 className="text-xl font-bold mb-2">Location-Based Game Discovery</h4>
               <p>
-                GroundPlay is still evolving, with plans for many exciting features:
+                Uses PostGIS spatial queries to find games within a specified radius of the user's location. 
+                The frontend captures user coordinates via browser geolocation API and displays results on an 
+                interactive map using Leaflet.
               </p>
               
-              <ul>
-                <li>Team formation tools for organizing balanced matches</li>
-                <li>Integration with messaging platforms for easier communication</li>
-                <li>Weather forecasts for outdoor games</li>
-                <li>Ratings and reviews for venues</li>
-                <li>A points system to recognize regular players and organizers</li>
-              </ul>
-              
+              <h4 className="text-xl font-bold mt-4 mb-2">Game Management</h4>
               <p>
-                The vision for GroundPlay goes beyond just being a platform for organizing games—it's about building communities around shared interests in sports and physical activities.
+                Implemented a system for creating games with location, time, and player requirements. 
+                Games have different statuses (upcoming, in-progress, completed) and track enrollment with capacity limits.
               </p>
               
+              <h4 className="text-xl font-bold mt-4 mb-2">Authentication System</h4>
               <p>
-                By making it easier for people to connect through sports, GroundPlay aims to promote more active lifestyles, strengthen community bonds, and make sports more accessible to everyone.
+                Secure JWT-based authentication provides identity management and authorizes access to resources.
+                Tokens contain user roles for fine-grained permissions control.
               </p>
               
-              <h3 className="text-2xl font-bold mt-8 mb-4">Join the Community</h3>
-              
-              <p>
-                Whether you're looking to find a game to join, need players for your regular match, or just want to meet new people who share your passion for sports, GroundPlay is built for you.
-              </p>
-              
-              <p>
-                I invite you to be part of this journey—create games, join others, provide feedback, and help shape the future of this platform. Together, we can build a vibrant community that celebrates the joy of playing sports together.
-              </p>
-              
-              <p className="text-lg font-semibold mt-8">
-                See you on the field!
+              <p className="text-lg font-semibold italic mt-8">
+                This project serves as a personal learning playground, combining my interests in sports
+                and modern web development.
               </p>
             </div>
           </div>

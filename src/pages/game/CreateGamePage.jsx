@@ -7,7 +7,10 @@ import Button from '../../components/Button';
 import Alert from '../../components/Alert';
 import Map from '../../components/Map';
 import { gameService } from '../../api';
-import { SPORT_OPTIONS, getErrorMessage, formatDateForInput, calculateEndTime } from '../../utils/helpers';
+import { 
+  SPORT_OPTIONS, getErrorMessage, formatDateForInput, 
+  calculateEndTime 
+} from '../../utils/helpers';
 import { createGameValidationSchema } from '../../utils/validation';
 import { useAuth } from '../../context/AuthContext';
 
@@ -328,22 +331,24 @@ const CreateGamePage = () => {
       endTimeValue = recalculatedEndTime;
       data.endTime = endTimeValue;
 
-      // Format dates for server
-      const formatForServer = (dateStr) => {
-        try {
-          const date = new Date(dateStr);
-          return date.toISOString().split('.')[0]; // Format as ISO without milliseconds
-        } catch (e) {
-          console.warn("Date format error:", e);
-          return dateStr; // If parsing fails, return original
+      // Use dates exactly as entered by the user - no timezone conversion
+      // But ensure the format includes seconds (:00) as required by the backend
+      
+      // Add seconds to datetime if not present
+      const addSeconds = (dateStr) => {
+        // If date already has seconds, return as is
+        if (dateStr.match(/T\d{2}:\d{2}:\d{2}/)) {
+          return dateStr;
         }
+        // Otherwise add ":00" for seconds
+        return dateStr + ":00";
       };
       
-      // Prepare game data with properly formatted dates
+      // Prepare game data using raw date strings with seconds added
       const gameData = {
         ...data,
-        startTime: formatForServer(startTimeValue),
-        endTime: formatForServer(endTimeValue),
+        startTime: addSeconds(startTimeValue), // Add seconds to the time
+        endTime: addSeconds(endTimeValue),     // Add seconds to the time
         organizer: currentUser.id,
         enrolledPlayers: 0, // This will be updated by the server
       };

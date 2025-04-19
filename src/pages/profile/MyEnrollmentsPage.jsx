@@ -7,6 +7,7 @@ import Alert from '../../components/Alert';
 import GameCard from '../../components/GameCard';
 import { useAuth } from '../../context/AuthContext';
 import { gameService } from '../../api';
+import { getErrorMessage } from '../../utils/helpers';
 
 const MyEnrollmentsPage = () => {
   const { currentUser } = useAuth();
@@ -29,7 +30,7 @@ const MyEnrollmentsPage = () => {
         setError('');
       } catch (err) {
         console.error('Error fetching enrollments:', err);
-        setError('Failed to load your enrollments.');
+        setError(getErrorMessage(err));
         setMyEnrollments([]);
       } finally {
         setIsLoadingEnrollments(false);
