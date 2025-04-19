@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../../context/AuthContext';
 import { loginValidationSchema } from '../../utils/validation';
-import { getErrorMessage } from '../../utils/helpers';
+import { getErrorMessage, getCountryCodes } from '../../utils/helpers';
 import Button from '../../components/Button';
 import Alert from '../../components/Alert';
 import Layout from '../../components/Layout';
@@ -14,9 +14,13 @@ const LoginPage = () => {
   const location = useLocation();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [countryCode, setCountryCode] = useState('+91');
+  const [phoneWithoutCode, setPhoneWithoutCode] = useState('');
+  
+  // Get country codes once using useMemo to avoid unnecessary recalculations
+  const countryCodes = useMemo(() => getCountryCodes(), []);
 
-  // Get the redirect path or default to dashboard
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.from?.pathname || '/';
 
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
@@ -25,11 +29,42 @@ const LoginPage = () => {
     }
   });
 
+  // Handle phone number input change
+  const handlePhoneChange = (e) => {
+    setPhoneWithoutCode(e.target.value);
+    // Construct full phone number with country code
+    const fullPhoneNumber = `${countryCode}${e.target.value}`;
+    // Update the form value
+    register('phoneNumber').onChange({
+      target: { name: 'phoneNumber', value: fullPhoneNumber }
+    });
+  };
+
+  // Handle country code change
+  const handleCountryCodeChange = (e) => {
+    const newCountryCode = e.target.value;
+    setCountryCode(newCountryCode);
+    
+    // Update the full phone number with new country code
+    const fullPhoneNumber = `${newCountryCode}${phoneWithoutCode}`;
+    register('phoneNumber').onChange({
+      target: { name: 'phoneNumber', value: fullPhoneNumber }
+    });
+  };
+
   const onSubmit = async (data) => {
     try {
       setLoading(true);
       setError('');
-      await login(data);
+      
+      // Make sure phoneNumber includes the country code
+      const phoneNumber = `${countryCode}${phoneWithoutCode}`;
+      const submitData = {
+        ...data,
+        phoneNumber
+      };
+      
+      await login(submitData);
       navigate(from, { replace: true });
     } catch (err) {
       console.error('Login error:', err);
@@ -55,13 +90,27 @@ const LoginPage = () => {
               <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
                 Phone Number
               </label>
-              <input
-                type="text"
-                id="phoneNumber"
-                placeholder="+911234567890"
-                className={`input-field ${errors.phoneNumber ? 'border-red-500' : ''}`}
-                {...register('phoneNumber', loginValidationSchema.phoneNumber)}
-              />
+              <div className="flex">
+                <select
+                  className="input-field rounded-r-none w-24 pr-1 flex-shrink-0" 
+                  value={countryCode}
+                  onChange={handleCountryCodeChange}
+                >
+                  {countryCodes.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.flag} {country.code}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  id="phoneNumber"
+                  placeholder="1234567890"
+                  className={`input-field rounded-l-none w-full ${errors.phoneNumber ? 'border-red-500' : ''}`}
+                  onChange={handlePhoneChange}
+                  value={phoneWithoutCode}
+                />
+              </div>
               {errors.phoneNumber && (
                 <p className="mt-1 text-sm text-red-500">{errors.phoneNumber.message}</p>
               )}

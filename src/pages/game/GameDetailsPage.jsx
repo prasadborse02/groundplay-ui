@@ -132,9 +132,11 @@ const GameDetailsPage = () => {
             <p className="text-gray-600 mb-6">
               The game you're looking for doesn't exist or has been removed.
             </p>
-            <Button onClick={() => navigate('/dashboard')}>
-              Back to Dashboard
-            </Button>
+            <div className="flex justify-center">
+              <Button onClick={() => navigate('/')}>
+                Back to Home
+              </Button>
+            </div>
           </div>
         </div>
       </Layout>

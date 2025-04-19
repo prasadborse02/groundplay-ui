@@ -46,34 +46,41 @@ const ChangeMapView = ({ center, zoom }) => {
 };
 
 // Component to handle map interactions (clicks and draggable marker)
-const MapInteractionHandler = ({ onLocationSelect, selectedLocation }) => {
+const MapInteractionHandler = ({ onLocationSelect, selectedLocation, searchRadius }) => {
   const map = useMap();
   const markerRef = useRef(null);
+  const circleRef = useRef(null);
   
   // Initialize or update marker when selectedLocation changes
   useEffect(() => {
     // Safety check
     if (!map) return;
     
-    // Clean up function to properly remove marker
-    const cleanupMarker = () => {
+    // Clean up function to properly remove marker and circle
+    const cleanup = () => {
       try {
         if (markerRef.current && map) {
           map.removeLayer(markerRef.current);
           markerRef.current = null;
         }
+        
+        if (circleRef.current && map) {
+          map.removeLayer(circleRef.current);
+          circleRef.current = null;
+        }
       } catch (error) {
-        console.error('Error removing marker:', error);
-        // Reset reference even if removal fails
+        console.error('Error removing layers:', error);
+        // Reset references even if removal fails
         markerRef.current = null;
+        circleRef.current = null;
       }
     };
     
     try {
-      // First, remove any existing marker
-      cleanupMarker();
+      // First, remove any existing marker and circle
+      cleanup();
       
-      // If we have a selected location, create a draggable marker
+      // If we have a selected location, create a draggable marker and radius circle
       if (selectedLocation && selectedLocation.lat && selectedLocation.lon) {
         // Create new marker with default icon (the original pin)
         const newMarker = L.marker([selectedLocation.lat, selectedLocation.lon], {
@@ -81,10 +88,30 @@ const MapInteractionHandler = ({ onLocationSelect, selectedLocation }) => {
           zIndexOffset: 1000 // Make sure selection marker is above game markers
         }).addTo(map);
         
+        // Add circle to show search radius (if provided)
+        if (searchRadius) {
+          const radiusInMeters = searchRadius * 1000; // Convert km to meters
+          const circle = L.circle([selectedLocation.lat, selectedLocation.lon], {
+            radius: radiusInMeters,
+            color: '#3b82f6',
+            fillColor: '#93c5fd',
+            fillOpacity: 0.2,
+            weight: 2
+          }).addTo(map);
+          
+          circleRef.current = circle;
+        }
+        
         // Handle marker drag end - update coordinates
         newMarker.on('dragend', () => {
           try {
             const position = newMarker.getLatLng();
+            
+            // Update circle position if it exists
+            if (circleRef.current && searchRadius) {
+              circleRef.current.setLatLng(position);
+            }
+            
             onLocationSelect({ lat: position.lat, lon: position.lng });
           } catch (error) {
             console.error('Error handling marker drag:', error);
@@ -99,8 +126,8 @@ const MapInteractionHandler = ({ onLocationSelect, selectedLocation }) => {
     }
     
     // Return cleanup function for when component unmounts or effect runs again
-    return cleanupMarker;
-  }, [map, selectedLocation, onLocationSelect]);
+    return cleanup;
+  }, [map, selectedLocation, onLocationSelect, searchRadius]);
   
   // Set up map click handler to place marker
   useEffect(() => {
@@ -141,7 +168,8 @@ const Map = ({
   games = [],
   selectable = false,
   onLocationSelect = () => {},
-  selectedLocation = null
+  selectedLocation = null,
+  searchRadius = null
 }) => {
   const [map, setMap] = useState(null);
 
@@ -215,6 +243,7 @@ const Map = ({
         {selectable && <MapInteractionHandler 
           onLocationSelect={onLocationSelect}
           selectedLocation={selectedLocation}
+          searchRadius={searchRadius}
         />}
       </MapContainer>
     </div>

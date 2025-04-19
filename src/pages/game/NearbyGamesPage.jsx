@@ -95,7 +95,12 @@ const NearbyGamesPage = () => {
 
   // Handle search radius change
   const handleRadiusChange = (e) => {
-    const radius = Number(e.target.value);
+    let radius = Number(e.target.value);
+    
+    // Enforce min/max constraints (1-100 km)
+    if (radius < 1) radius = 1;
+    if (radius > 100) radius = 100;
+    
     setSearchRadius(radius);
     if (selectedLocation) {
       fetchNearbyGames(selectedLocation.lat, selectedLocation.lon, radius);
@@ -152,6 +157,7 @@ const NearbyGamesPage = () => {
                 selectedLocation={selectedLocation}
                 onLocationSelect={handleLocationSelect}
                 games={filteredGames}
+                searchRadius={searchRadius}
               />
             </div>
             
@@ -168,6 +174,18 @@ const NearbyGamesPage = () => {
                       max="100"
                       value={searchRadius}
                       onChange={handleRadiusChange}
+                      onBlur={(e) => {
+                        // Ensure value is within range on blur
+                        let value = Number(e.target.value);
+                        if (value < 1 || isNaN(value)) value = 1;
+                        if (value > 100) value = 100;
+                        setSearchRadius(value);
+                        
+                        // Update search with validated value if needed
+                        if (selectedLocation && value !== Number(e.target.value)) {
+                          fetchNearbyGames(selectedLocation.lat, selectedLocation.lon, value);
+                        }
+                      }}
                       className="input-field rounded-r-none sm:rounded-r-md"
                     />
                     <Button 
