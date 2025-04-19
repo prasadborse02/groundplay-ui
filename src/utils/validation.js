@@ -66,18 +66,6 @@ export const createGameValidationSchema = {
   },
   endTime: {
     required: 'End time is required',
-    validate: (value, { startTime }) => {
-      if (!startTime || !value) return true;
-      const start = new Date(startTime);
-      const end = new Date(value);
-      if (end <= start) return 'End time must be after start time';
-      
-      // Check if session is longer than 24 hours
-      const diffHours = (end - start) / (1000 * 60 * 60);
-      if (diffHours > 24) return 'Session cannot be longer than 24 hours';
-      
-      return true;
-    },
   },
   teamSize: {
     required: 'Team size is required',

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { User, Phone, Mail, Edit, Save, X } from 'lucide-react';
 import Layout from '../../components/Layout';
 import Button from '../../components/Button';
@@ -10,11 +11,14 @@ import { getErrorMessage } from '../../utils/helpers';
 
 const ProfilePage = () => {
   const { currentUser, updateProfile } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
+  
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     defaultValues: {
       name: currentUser?.name || '',
@@ -27,7 +31,7 @@ const ProfilePage = () => {
       reset({ name: currentUser.name });
     }
   }, [currentUser, reset, isEditing]);
-
+  
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
     setError('');
@@ -57,17 +61,17 @@ const ProfilePage = () => {
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">My Profile</h1>
+      <div className="max-w-4xl mx-auto pt-6">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">My Profile</h1>
 
         {error && <Alert type="error" message={error} onClose={() => setError('')} />}
         {successMessage && (
           <Alert type="success" message={successMessage} onClose={() => setSuccessMessage('')} />
         )}
 
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="bg-white rounded-xl shadow-md overflow-hidden mt-4">
           {/* Profile Header */}
-          <div className="bg-gradient-to-r from-primary to-secondary p-6">
+          <div className="bg-gradient-to-r from-primary to-accent p-6">
             <div className="flex items-center">
               <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center text-primary text-3xl font-bold shrink-0">
                 {currentUser?.name?.charAt(0).toUpperCase() || 'U'}

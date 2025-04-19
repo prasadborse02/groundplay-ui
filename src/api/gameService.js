@@ -8,13 +8,23 @@ const createGame = async (gameData) => {
 };
 
 const getMyGames = async () => {
-  const response = await apiClient.get(`${API_BASE}/my-games`);
-  return response.data;
+  try {
+    const response = await apiClient.get(`${API_BASE}/my-games`);
+    return response.data;
+  } catch (error) {
+    console.error('API error in getMyGames:', error.response || error);
+    throw error;
+  }
 };
 
 const getMyEnrolledGames = async (activeOnly = true) => {
-  const response = await apiClient.get(`${API_BASE}/my-enrolled-games?activeOnly=${activeOnly}`);
-  return response.data;
+  try {
+    const response = await apiClient.get(`${API_BASE}/my-enrolled-games?activeOnly=${activeOnly}`);
+    return response.data;
+  } catch (error) {
+    console.error('API error in getMyEnrolledGames:', error.response || error);
+    throw error;
+  }
 };
 
 const getNearbyGames = async (lat, lon, radiusKm = 10) => {

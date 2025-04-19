@@ -8,9 +8,9 @@ import Layout from '../../components/Layout';
 import Map from '../../components/Map';
 import Button from '../../components/Button';
 import Alert from '../../components/Alert';
-import { gameService, playerService } from '../../api';
+import { gameService } from '../../api';
 import { 
-  formatDateTime, formatTime, formatDate, 
+  formatTime, formatDate, 
   getSportLabel, getShareableGameUrl, copyToClipboard 
 } from '../../utils/helpers';
 import { useAuth } from '../../context/AuthContext';

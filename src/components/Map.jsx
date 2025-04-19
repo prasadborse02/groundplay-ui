@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -45,6 +45,95 @@ const ChangeMapView = ({ center, zoom }) => {
   return null;
 };
 
+// Component to handle map interactions (clicks and draggable marker)
+const MapInteractionHandler = ({ onLocationSelect, selectedLocation }) => {
+  const map = useMap();
+  const markerRef = useRef(null);
+  
+  // Initialize or update marker when selectedLocation changes
+  useEffect(() => {
+    // Safety check
+    if (!map) return;
+    
+    // Clean up function to properly remove marker
+    const cleanupMarker = () => {
+      try {
+        if (markerRef.current && map) {
+          map.removeLayer(markerRef.current);
+          markerRef.current = null;
+        }
+      } catch (error) {
+        console.error('Error removing marker:', error);
+        // Reset reference even if removal fails
+        markerRef.current = null;
+      }
+    };
+    
+    try {
+      // First, remove any existing marker
+      cleanupMarker();
+      
+      // If we have a selected location, create a draggable marker
+      if (selectedLocation && selectedLocation.lat && selectedLocation.lon) {
+        // Create new marker with default icon (the original pin)
+        const newMarker = L.marker([selectedLocation.lat, selectedLocation.lon], {
+          draggable: true,
+          zIndexOffset: 1000 // Make sure selection marker is above game markers
+        }).addTo(map);
+        
+        // Handle marker drag end - update coordinates
+        newMarker.on('dragend', () => {
+          try {
+            const position = newMarker.getLatLng();
+            onLocationSelect({ lat: position.lat, lon: position.lng });
+          } catch (error) {
+            console.error('Error handling marker drag:', error);
+          }
+        });
+        
+        // Store marker in ref instead of state to avoid re-renders
+        markerRef.current = newMarker;
+      }
+    } catch (error) {
+      console.error('Error setting up marker:', error);
+    }
+    
+    // Return cleanup function for when component unmounts or effect runs again
+    return cleanupMarker;
+  }, [map, selectedLocation, onLocationSelect]);
+  
+  // Set up map click handler to place marker
+  useEffect(() => {
+    if (!map) return;
+    
+    const handleMapClick = (e) => {
+      try {
+        const { lat, lng } = e.latlng;
+        onLocationSelect({ lat, lon: lng });
+      } catch (error) {
+        console.error('Error handling map click:', error);
+      }
+    };
+    
+    try {
+      map.on('click', handleMapClick);
+      
+      return () => {
+        try {
+          map.off('click', handleMapClick);
+        } catch (error) {
+          console.error('Error removing map click handler:', error);
+        }
+      };
+    } catch (error) {
+      console.error('Error setting up map click handler:', error);
+      return () => {};
+    }
+  }, [map, onLocationSelect]);
+  
+  return null;
+};
+
 // Main Map component
 const Map = ({ 
   center = [20.5937, 78.9629], // Default to center of India
@@ -56,14 +145,6 @@ const Map = ({
 }) => {
   const [map, setMap] = useState(null);
 
-  // Handle map click for location selection
-  const handleMapClick = (e) => {
-    if (selectable && map) {
-      const { lat, lng } = e.latlng;
-      onLocationSelect({ lat, lon: lng });
-    }
-  };
-
   useEffect(() => {
     // Clean up on unmount
     return () => {
@@ -71,34 +152,38 @@ const Map = ({
     };
   }, [map]);
 
+  // If user's location was provided, use it as center
+  useEffect(() => {
+    if (map && selectable && !selectedLocation) {
+      // Try to get user's current location
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            map.setView([latitude, longitude], 15);
+            onLocationSelect({ lat: latitude, lon: longitude });
+          },
+          (error) => {
+            console.error("Error getting location:", error);
+            // Keep default center of India
+          }
+        );
+      }
+    }
+  }, [map, selectable, onLocationSelect, selectedLocation]);
+
   return (
-    <div className="rounded-xl overflow-hidden shadow-md h-96">
+    <div className="rounded-xl overflow-hidden shadow-md h-96" style={{ position: 'relative', zIndex: 10 }}>
       <MapContainer
         center={center}
         zoom={zoom}
         style={{ height: '100%', width: '100%' }}
         whenCreated={setMap}
-        onClick={handleMapClick}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-
-        {/* Display selected location if selectable */}
-        {selectable && selectedLocation && (
-          <Marker 
-            position={[selectedLocation.lat, selectedLocation.lon]}
-            icon={L.divIcon({
-              className: 'selected-marker',
-              html: '<div class="w-6 h-6 bg-primary rounded-full border-2 border-white shadow-md"></div>',
-              iconSize: [24, 24],
-              iconAnchor: [12, 12],
-            })}
-          >
-            <Popup>Selected Location</Popup>
-          </Marker>
-        )}
 
         {/* Display games markers */}
         {games.map((game) => (
@@ -127,6 +212,10 @@ const Map = ({
         ))}
 
         <ChangeMapView center={center} zoom={zoom} />
+        {selectable && <MapInteractionHandler 
+          onLocationSelect={onLocationSelect}
+          selectedLocation={selectedLocation}
+        />}
       </MapContainer>
     </div>
   );

@@ -1,4 +1,4 @@
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, addHours, addMinutes } from 'date-fns';
 
 // Format date and time
 export const formatDateTime = (dateString) => {
@@ -44,6 +44,44 @@ export const formatDateForInput = (dateString) => {
   }
 };
 
+// Calculate end time based on start time and duration
+export const calculateEndTime = (startTime, durationHours, durationMinutes) => {
+  try {
+    // Ensure we have valid start time
+    if (!startTime) return '';
+    
+    // Convert empty values to 0
+    const hours = durationHours === '' || isNaN(durationHours) ? 0 : parseInt(durationHours);
+    const minutes = durationMinutes === '' || isNaN(durationMinutes) ? 0 : parseInt(durationMinutes);
+    
+    // Ensure hours doesn't exceed 24
+    const safeHours = Math.min(hours, 24);
+    // If hours is 24, minutes must be 0
+    const safeMinutes = safeHours === 24 ? 0 : minutes;
+    
+    // If both duration values are 0, return empty string
+    if (safeHours === 0 && safeMinutes === 0) return '';
+    
+    // Parse start date
+    const startDate = new Date(startTime);
+    
+    // Check for invalid date
+    if (isNaN(startDate.getTime())) {
+      return '';
+    }
+    
+    // Add duration (create a new date to avoid mutation)
+    let endDate = new Date(startDate);
+    if (safeHours > 0) endDate = addHours(endDate, safeHours);
+    if (safeMinutes > 0) endDate = addMinutes(endDate, safeMinutes);
+    
+    // Format for input
+    return formatDateForInput(endDate.toISOString());
+  } catch (error) {
+    return '';
+  }
+};
+
 // Generate game URL for sharing
 export const getShareableGameUrl = (gameId) => {
   return `${window.location.origin}/game/${gameId}`;
@@ -74,6 +112,10 @@ export const SPORT_OPTIONS = [
   { value: 'VOLLEYBALL', label: 'Volleyball' },
   { value: 'TENNIS', label: 'Tennis' },
   { value: 'BADMINTON', label: 'Badminton' },
+  { value: 'HOCKEY', label: 'Hockey' },
+  { value: 'KABADDI', label: 'Kabaddi' },
+  { value: 'KHO_KHO', label: 'Kho Kho' },
+  { value: 'BASKETBALL', label: 'Basketball' },
 ];
 
 // Get sport label from value

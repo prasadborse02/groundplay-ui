@@ -19,6 +19,20 @@ export default {
       borderRadius: {
         'xl': '1rem',
       },
+      animation: {
+        'sports-scroll': 'sports-scroll 30s linear infinite',
+        'bounce-short': 'bounce-short 0.6s ease-out',
+      },
+      keyframes: {
+        'sports-scroll': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(calc(-240px * 5))' }, // 5 items * width+margin
+        },
+        'bounce-short': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+      },
     },
   },
   plugins: [],

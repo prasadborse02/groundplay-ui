@@ -40,6 +40,10 @@ const SPORTS = [
   { name: 'Volleyball', icon: '🏐' },
   { name: 'Tennis', icon: '🎾' },
   { name: 'Badminton', icon: '🏸' },
+  { name: 'Basketball', icon: '🏀' },
+  { name: 'Hockey', icon: '🏑' },
+  { name: 'Kabaddi', icon: '🤼' },
+  { name: 'Kho Kho', icon: '🏃‍♀️' },
 ];
 
 const HomePage = () => {
@@ -61,8 +65,8 @@ const HomePage = () => {
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
                 {isAuthenticated ? (
                   <>
-                    <Link to="/dashboard" className="btn-primary">
-                      Go to Dashboard
+                    <Link to="/games/nearby" className="btn-primary">
+                      Find Nearby Games
                     </Link>
                     <Link to="/game/create" className="btn-secondary">
                       Create Game
@@ -94,101 +98,109 @@ const HomePage = () => {
       </section>
 
       {/* Sports Section */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-12 bg-gray-50 overflow-hidden relative">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
             Sports You Can Play
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-            {SPORTS.map((sport) => (
-              <div 
-                key={sport.name} 
-                className="flex flex-col items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all"
-              >
-                <span className="text-4xl mb-4">{sport.icon}</span>
-                <h3 className="text-lg font-semibold">{sport.name}</h3>
-              </div>
-            ))}
+          
+          {/* Animated sports cards container */}
+          <div className="relative overflow-hidden mx-6 md:mx-12">
+            {/* Left edge gradient overlay for vanishing effect - multi-layered for better blur */}
+            <div className="absolute left-0 top-0 w-36 h-full z-10" style={{
+              background: 'linear-gradient(to right, rgba(249, 249, 249, 1) 0%, rgba(249, 249, 249, 1) 15%, rgba(249, 249, 249, 0.95) 30%, rgba(249, 249, 249, 0.8) 45%, rgba(249, 249, 249, 0.6) 60%, rgba(249, 249, 249, 0.4) 75%, rgba(249, 249, 249, 0.2) 85%, rgba(249, 249, 249, 0) 100%)'
+            }}></div>
+            
+            {/* Right edge gradient overlay for vanishing effect - multi-layered for better blur */}
+            <div className="absolute right-0 top-0 w-36 h-full z-10" style={{
+              background: 'linear-gradient(to left, rgba(249, 249, 249, 1) 0%, rgba(249, 249, 249, 1) 15%, rgba(249, 249, 249, 0.95) 30%, rgba(249, 249, 249, 0.8) 45%, rgba(249, 249, 249, 0.6) 60%, rgba(249, 249, 249, 0.4) 75%, rgba(249, 249, 249, 0.2) 85%, rgba(249, 249, 249, 0) 100%)'
+            }}></div>
+            
+            {/* Continuous animated row of sports cards - automatically scrolls */}
+            <div className="sports-carousel flex animate-sports-scroll">
+              {/* Show the sports list twice to create a seamless loop */}
+              {[...SPORTS, ...SPORTS, ...SPORTS].map((sport, index) => (
+                <div 
+                  key={`${sport.name}-${index}`} 
+                  className="flex-shrink-0 w-48 mx-4 flex flex-col items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all"
+                >
+                  <span className="text-4xl mb-4">{sport.icon}</span>
+                  <h3 className="text-lg font-semibold">{sport.name}</h3>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
+      
+      {/* Custom style to pause animation on hover - we're using Tailwind for the animation */}
+      <style jsx>{`
+        .sports-carousel:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
 
-      {/* Featured Games Section */}
-      <section className="py-12 md:py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
-            Example Games
-          </h2>
-          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-            Here are some examples of the types of games you can create and join. Sign up to see real games in your area!
-          </p>
+      {/* Featured Games Section - only shown to non-authenticated users */}
+      {!isAuthenticated && (
+        <section className="py-12 md:py-16">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-4">
+              Example Games
+            </h2>
+            <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+              Here are some examples of the types of games you can create and join. Sign up to see real games in your area!
+            </p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {FEATURED_GAMES.map((game) => (
-              <div key={game.id} className="card hover:translate-y-[-4px]">
-                <div className="mb-4">
-                  <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium">
-                    {game.sport.charAt(0) + game.sport.slice(1).toLowerCase()}
-                  </span>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="flex items-start">
-                    <MapPin size={18} className="text-gray-500 mt-0.5 mr-2 shrink-0" />
-                    <p className="text-gray-700">{game.location}</p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {FEATURED_GAMES.map((game) => (
+                <div key={game.id} className="card hover:translate-y-[-4px]">
+                  <div className="mb-4">
+                    <span className="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium">
+                      {game.sport.charAt(0) + game.sport.slice(1).toLowerCase()}
+                    </span>
                   </div>
                   
-                  <div className="flex items-center">
-                    <Calendar size={18} className="text-gray-500 mr-2 shrink-0" />
-                    <p className="text-gray-700">
-                      {new Date(game.startTime).toLocaleDateString()} • {new Date(game.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
+                  <div className="space-y-3">
+                    <div className="flex items-start">
+                      <MapPin size={18} className="text-gray-500 mt-0.5 mr-2 shrink-0" />
+                      <p className="text-gray-700">{game.location}</p>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <Calendar size={18} className="text-gray-500 mr-2 shrink-0" />
+                      <p className="text-gray-700">
+                        {new Date(game.startTime).toLocaleDateString()} • {new Date(game.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center">
+                      <Users size={18} className="text-gray-500 mr-2 shrink-0" />
+                      <p className="text-gray-700">
+                        {game.enrolledPlayers} / {game.teamSize} players
+                      </p>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center">
-                    <Users size={18} className="text-gray-500 mr-2 shrink-0" />
-                    <p className="text-gray-700">
-                      {game.enrolledPlayers} / {game.teamSize} players
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
-                  {isAuthenticated ? (
-                    <Link 
-                      to={`/game/${game.id}`} 
-                      className="flex items-center text-primary font-medium hover:underline"
-                    >
-                      View Details <ArrowRight size={16} className="ml-1" />
-                    </Link>
-                  ) : (
+                  <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
                     <Link 
                       to="/login" 
                       className="flex items-center text-primary font-medium hover:underline"
                     >
                       Sign in to view <ArrowRight size={16} className="ml-1" />
                     </Link>
-                  )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-
-          {isAuthenticated ? (
-            <div className="mt-12 text-center">
-              <Link to="/dashboard" className="btn-primary">
-                Explore More Games
-              </Link>
+              ))}
             </div>
-          ) : (
+
             <div className="mt-12 text-center">
               <Link to="/register" className="btn-primary">
                 Sign Up to Explore Games
               </Link>
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* How It Works Section */}
       <section className="py-12 md:py-16 bg-gray-50">
@@ -243,8 +255,8 @@ const HomePage = () => {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               {isAuthenticated ? (
-                <Link to="/game/create" className="btn-primary bg-white text-primary hover:bg-gray-100">
-                  Create Your First Game
+                <Link to="/games/nearby" className="btn-primary bg-white text-primary hover:bg-gray-100">
+                  Find Games Nearby
                 </Link>
               ) : (
                 <>

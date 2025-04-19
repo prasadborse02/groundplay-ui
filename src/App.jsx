@@ -10,10 +10,12 @@ import NotFoundPage from './pages/NotFoundPage';
 import StoryPage from './pages/StoryPage';
 
 // Protected pages
-import DashboardPage from './pages/dashboard/DashboardPage';
 import CreateGamePage from './pages/game/CreateGamePage';
+import NearbyGamesPage from './pages/game/NearbyGamesPage';
 import GameDetailsPage from './pages/game/GameDetailsPage';
 import ProfilePage from './pages/profile/ProfilePage';
+import MyGamesPage from './pages/profile/MyGamesPage';
+import MyEnrollmentsPage from './pages/profile/MyEnrollmentsPage';
 
 function App() {
   return (
@@ -28,10 +30,10 @@ function App() {
           
           {/* Protected Routes */}
           <Route 
-            path="/dashboard" 
+            path="/games/nearby" 
             element={
               <ProtectedRoute>
-                <DashboardPage />
+                <NearbyGamesPage />
               </ProtectedRoute>
             } 
           />
@@ -67,11 +69,21 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          
-          {/* Redirect /dashboard/* to /dashboard */}
           <Route 
-            path="/dashboard/*" 
-            element={<Navigate to="/dashboard" replace />} 
+            path="/profile/games" 
+            element={
+              <ProtectedRoute>
+                <MyGamesPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile/enrollments" 
+            element={
+              <ProtectedRoute>
+                <MyEnrollmentsPage />
+              </ProtectedRoute>
+            } 
           />
           
           {/* 404 Route */}

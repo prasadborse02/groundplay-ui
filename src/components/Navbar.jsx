@@ -30,11 +30,17 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-6">
             {isAuthenticated ? (
               <>
-                <Link to="/dashboard" className="text-gray-700 hover:text-primary transition-colors">
-                  Dashboard
+                <Link to="/" className="text-gray-700 hover:text-primary transition-colors">
+                  Home
                 </Link>
                 <Link to="/game/create" className="text-gray-700 hover:text-primary transition-colors">
                   Create Game
+                </Link>
+                <Link to="/games/nearby" className="text-gray-700 hover:text-primary transition-colors">
+                  Nearby Games
+                </Link>
+                <Link to="/story" className="text-gray-700 hover:text-primary transition-colors">
+                  Story
                 </Link>
                 <div className="relative group">
                   <button className="flex items-center text-gray-700 hover:text-primary transition-colors">
@@ -44,6 +50,12 @@ const Navbar = () => {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all">
                     <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                       My Profile
+                    </Link>
+                    <Link to="/profile/games" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                      My Games
+                    </Link>
+                    <Link to="/profile/enrollments" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                      My Enrollments
                     </Link>
                     <button 
                       onClick={handleLogout}
@@ -85,11 +97,11 @@ const Navbar = () => {
               {isAuthenticated ? (
                 <>
                   <Link 
-                    to="/dashboard" 
+                    to="/" 
                     className="text-gray-700 hover:text-primary transition-colors py-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Dashboard
+                    Home
                   </Link>
                   <Link 
                     to="/game/create" 
@@ -99,11 +111,39 @@ const Navbar = () => {
                     Create Game
                   </Link>
                   <Link 
+                    to="/games/nearby" 
+                    className="text-gray-700 hover:text-primary transition-colors py-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Nearby Games
+                  </Link>
+                  <Link 
+                    to="/story" 
+                    className="text-gray-700 hover:text-primary transition-colors py-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Story
+                  </Link>
+                  <Link 
                     to="/profile" 
                     className="text-gray-700 hover:text-primary transition-colors py-2"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     My Profile
+                  </Link>
+                  <Link 
+                    to="/profile/games" 
+                    className="text-gray-700 hover:text-primary transition-colors py-2 pl-4"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    My Games
+                  </Link>
+                  <Link 
+                    to="/profile/enrollments" 
+                    className="text-gray-700 hover:text-primary transition-colors py-2 pl-4"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    My Enrollments
                   </Link>
                   <button 
                     onClick={handleLogout}
