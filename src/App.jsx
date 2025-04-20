@@ -19,7 +19,7 @@ import MyEnrollmentsPage from './pages/profile/MyEnrollmentsPage';
 
 function App() {
   return (
-    <Router>
+    <Router basename="/groundplay">
       <AuthProvider>
         <Routes>
           {/* Public Routes */}

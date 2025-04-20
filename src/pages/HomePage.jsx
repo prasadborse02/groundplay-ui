@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { MapPin, Calendar, Users, ArrowRight } from 'lucide-react';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
+import outdoorImage from '../assets/outdoor.png';
 
 // Mock data for featured games
 const FEATURED_GAMES = [
@@ -87,7 +88,7 @@ const HomePage = () => {
             <div className="md:w-1/2">
               <div className="rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-primary/80 to-accent/80 p-1">
                 <img 
-                  src="/src/assets/outdoor.png" 
+                  src={outdoorImage} 
                   alt="People playing sports"
                   className="rounded-xl w-full h-full object-cover"
                 />
