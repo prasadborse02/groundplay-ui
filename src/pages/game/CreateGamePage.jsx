@@ -366,16 +366,31 @@ const CreateGamePage = () => {
         
         // Enroll the current user if checkbox is checked
         if (selfEnroll) {
-          await gameService.enrollInGame(gameId);
+          try {
+            await gameService.enrollInGame(gameId);
+            setSuccessMessage('Game created successfully!');
+          } catch (enrollError) {
+            console.error('Error enrolling in game:', enrollError);
+            const errorMessage = getErrorMessage(enrollError);
+            // Check if it's a player availability error
+            if (enrollError.response?.data?.code === 'PLAYER_NOT_AVAILABLE' || 
+                enrollError.response?.data?.code === 'GAME_CONFLICT') {
+              setSuccessMessage('Game created successfully, but you were not enrolled as you are not available at that time.');
+            } else {
+              setSuccessMessage('Game created successfully, but enrollment failed: ' + errorMessage);
+            }
+          }
+        } else {
+          setSuccessMessage('Game created successfully!');
         }
-        
-        setSuccessMessage('Game created successfully!');
       }
 
       // Redirect to game details page after short delay
+      // Give more time for reading enrollment conflict messages
+      const redirectDelay = successMessage.includes('but you were not enrolled') ? 3000 : 1500;
       setTimeout(() => {
         navigate(`/game/${gameId}`);
-      }, 1500);
+      }, redirectDelay);
     } catch (err) {
       console.error('Error saving game:', err);
       setError(getErrorMessage(err));

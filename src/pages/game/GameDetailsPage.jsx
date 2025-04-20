@@ -117,6 +117,72 @@ const GameDetailsPage = () => {
       setError('Failed to copy link. Please try again.');
     }
   };
+  
+  // Cancel game
+  const [isCancellingGame, setIsCancellingGame] = useState(false);
+  const [isRestartingGame, setIsRestartingGame] = useState(false);
+  
+  const handleCancelGame = async () => {
+    if (!window.confirm('Are you sure you want to cancel this game? All players will be unenrolled and need to re-enroll if the game is restarted.')) {
+      return;
+    }
+    
+    try {
+      setIsCancellingGame(true);
+      setError('');
+      setSuccessMessage('');
+      
+      // If the current user is enrolled, unenroll them first
+      if (isCurrentPlayerEnrolled) {
+        await gameService.unenrollFromGame(id);
+        setIsCurrentPlayerEnrolled(false);
+        // Remove player from the list
+        setPlayers(players.filter(player => player.id !== currentUser.id));
+      }
+      
+      // Use updateGame to set status to false
+      await gameService.updateGame(id, { ...game, status: false });
+      
+      // Update local state
+      setGame({ ...game, status: false });
+      setSuccessMessage('Game has been cancelled successfully. If you restart the game, players will need to re-enroll.');
+    } catch (err) {
+      console.error('Error cancelling game:', err);
+      setError(getErrorMessage(err));
+    } finally {
+      setIsCancellingGame(false);
+    }
+  };
+  
+  // Restart game
+  const handleRestartGame = async () => {
+    if (!window.confirm('Are you sure you want to restart this game? Players will need to re-enroll to join.')) {
+      return;
+    }
+    
+    try {
+      setIsRestartingGame(true);
+      setError('');
+      setSuccessMessage('');
+      
+      // Use updateGame to set status to true
+      await gameService.updateGame(id, { ...game, status: true });
+      
+      // Update local state
+      setGame({ ...game, status: true });
+      
+      // Clear the players list as all players need to re-enroll
+      setPlayers([]);
+      
+      // Update success message to indicate players need to re-enroll
+      setSuccessMessage('Game has been restarted successfully. All players will need to re-enroll to join.');
+    } catch (err) {
+      console.error('Error restarting game:', err);
+      setError(getErrorMessage(err));
+    } finally {
+      setIsRestartingGame(false);
+    }
+  };
 
   // Loading state
   if (isLoading) {
@@ -158,61 +224,20 @@ const GameDetailsPage = () => {
   return (
     <Layout>
       <div className="max-w-4xl mx-auto">
-        {/* Back Navigation */}
-        <div className="mb-6">
+        {/* Back Navigation and Action Buttons */}
+        <div className="flex justify-between items-center mb-6">
           <button 
             onClick={() => navigate(-1)} 
             className="flex items-center text-gray-600 hover:text-primary transition-colors"
           >
             <ChevronLeft size={16} className="mr-1" /> Back
           </button>
-        </div>
-
-        {/* Alerts */}
-        {error && <Alert type="error" message={error} onClose={() => setError('')} />}
-        {successMessage && (
-          <Alert type="success" message={successMessage} onClose={() => setSuccessMessage('')} />
-        )}
-
-        {/* Game Header */}
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <div className="flex items-center mb-2">
-              <span className={`px-3 py-1 rounded-full text-sm font-medium mr-3 ${
-                game.sport === 'CRICKET' ? 'bg-green-100 text-green-600' :
-                game.sport === 'FOOTBALL' ? 'bg-blue-100 text-blue-600' :
-                game.sport === 'VOLLEYBALL' ? 'bg-yellow-100 text-yellow-600' :
-                game.sport === 'TENNIS' ? 'bg-red-100 text-red-600' :
-                game.sport === 'BADMINTON' ? 'bg-purple-100 text-purple-600' :
-                'bg-gray-100 text-gray-600'
-              }`}>
-                {getSportLabel(game.sport)}
-              </span>
-              
-              {!game.status && (
-                <span className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-medium">
-                  Cancelled
-                </span>
-              )}
-            </div>
-            
-            <h1 className="text-3xl font-bold text-gray-900">
-              {getSportLabel(game.sport)} Game
-            </h1>
-            
-            {game.location && (
-              <div className="flex items-center mt-2 text-gray-600">
-                <MapPin size={18} className="mr-2" />
-                <span>{game.location}</span>
-              </div>
-            )}
-          </div>
           
           <div className="flex space-x-2">
-            {isOrganizer && (
+            {isOrganizer && game.status && (
               <Link to={`/game/edit/${id}`}>
                 <Button variant="outline" className="flex items-center">
-                  <Edit size={16} className="mr-1" /> Edit
+                  <Edit size={16} className="md:mr-1" /> <span className="hidden md:inline">Edit</span>
                 </Button>
               </Link>
             )}
@@ -223,7 +248,7 @@ const GameDetailsPage = () => {
                 className="flex items-center"
                 onClick={handleShareGame}
               >
-                <Share2 size={16} className="mr-1" /> Share
+                <Share2 size={16} className="md:mr-1" /> <span className="hidden md:inline">Share</span>
               </Button>
               
               {/* Share tooltip */}
@@ -236,6 +261,45 @@ const GameDetailsPage = () => {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Alerts */}
+        {error && <Alert type="error" message={error} onClose={() => setError('')} />}
+        {successMessage && (
+          <Alert type="success" message={successMessage} onClose={() => setSuccessMessage('')} />
+        )}
+
+        {/* Game Header */}
+        <div className="mb-6">
+          <div className="flex items-center mb-2">
+            <span className={`px-3 py-1 rounded-full text-sm font-medium mr-3 ${
+              game.sport === 'CRICKET' ? 'bg-green-100 text-green-600' :
+              game.sport === 'FOOTBALL' ? 'bg-blue-100 text-blue-600' :
+              game.sport === 'VOLLEYBALL' ? 'bg-yellow-100 text-yellow-600' :
+              game.sport === 'TENNIS' ? 'bg-red-100 text-red-600' :
+              game.sport === 'BADMINTON' ? 'bg-purple-100 text-purple-600' :
+              'bg-gray-100 text-gray-600'
+            }`}>
+              {getSportLabel(game.sport)}
+            </span>
+            
+            {!game.status && (
+              <span className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-medium">
+                Cancelled
+              </span>
+            )}
+          </div>
+          
+          <h1 className="text-3xl font-bold text-gray-900">
+            {getSportLabel(game.sport)} Game
+          </h1>
+          
+          {game.location && (
+            <div className="flex items-center mt-2 text-gray-600">
+              <MapPin size={18} className="mr-2" />
+              <span>{game.location}</span>
+            </div>
+          )}
         </div>
 
         {/* Game Details & Map */}
@@ -340,14 +404,14 @@ const GameDetailsPage = () => {
               <h3 className="text-lg font-semibold mb-4 flex items-center">
                 <MapPin size={18} className="mr-2 text-primary" /> Location
               </h3>
-              <div className="h-64 mb-4">
+              <div className="h-64 mb-6">
                 <Map 
                   center={[game.coordinates.lat, game.coordinates.lon]}
                   zoom={15}
                   games={[game]}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <p className="text-gray-700">
                   {game.location || 'Location details not provided'}
                 </p>
@@ -357,14 +421,19 @@ const GameDetailsPage = () => {
                   {game.coordinates.lat.toFixed(6)}, {game.coordinates.lon.toFixed(6)}
                 </div>
                 
-                <a 
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${game.coordinates.lat},${game.coordinates.lon}&travelmode=driving`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 inline-flex items-center text-primary hover:text-primary/80 font-medium text-sm"
-                >
-                  <MapPin size={16} className="mr-1" /> Get Directions
-                </a>
+                {/* Coordinates display */}
+                <div className="mt-20 sm:mt-16 pt-4 border-t border-gray-100">
+                  <a 
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${game.coordinates.lat},${game.coordinates.lon}&travelmode=driving`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full block text-center py-3 px-4 bg-white text-primary border border-primary rounded-full hover:bg-blue-50 transition-colors mt-8 font-medium shadow-sm"
+                  >
+                    <span className="flex items-center justify-center">
+                      <MapPin size={18} className="mr-2" /> Get Directions
+                    </span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -390,8 +459,8 @@ const GameDetailsPage = () => {
                     {player.id === game.organizer && (
                       <p className="text-xs text-gray-500">Organizer</p>
                     )}
-                    {/* Show phone number only to the organizer (and to the player themselves) */}
-                    {(isOrganizer || player.id === currentUser.id) && player.phoneNumber && (
+                    {/* Show phone number only to the organizer */}
+                    {isOrganizer && player.phoneNumber && (
                       <p className="text-xs text-gray-500">
                         {player.phoneNumber}
                       </p>
@@ -402,6 +471,33 @@ const GameDetailsPage = () => {
             </div>
           )}
         </div>
+        
+        {/* Game Action Buttons at the bottom */}
+        {isOrganizer && (
+          <div className="mb-8 text-left flex flex-wrap gap-4">
+            {game.status ? (
+              <Button 
+                variant="danger" 
+                className="inline-flex items-center justify-center px-6"
+                onClick={handleCancelGame}
+                loading={isCancellingGame}
+                disabled={isCancellingGame}
+              >
+                <X size={16} className="mr-2" /> Cancel Game
+              </Button>
+            ) : (
+              <Button 
+                variant="primary" 
+                className="inline-flex items-center justify-center px-6"
+                onClick={handleRestartGame}
+                loading={isRestartingGame}
+                disabled={isRestartingGame}
+              >
+                <Check size={16} className="mr-2" /> Restart Game
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </Layout>
   );
