@@ -7,10 +7,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/groundplay/',
   plugins: [react()],
   server: {
-    port: 3000,
-    open: true
+    host: '0.0.0.0',
+    port: 5174
   },
   resolve: {
     alias: {
