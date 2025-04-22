@@ -90,7 +90,7 @@ export const calculateEndTime = (startTime, durationHours, durationMinutes) => {
 
 // Generate game URL for sharing
 export const getShareableGameUrl = (gameId) => {
-  return `${window.location.origin}/game/${gameId}`;
+  return `${window.location.origin}/groundplay/game/${gameId}`;
 };
 
 // Copy text to clipboard
