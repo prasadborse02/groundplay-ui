@@ -228,7 +228,7 @@ const Map = ({
                 <p>Players: {game.enrolledPlayers} enrolled</p>
                 <div className="mt-2">
                   <a 
-                    href={`/game/${game.id}`} 
+                    href={`/groundplay/game/${game.id}`} 
                     className="text-primary hover:underline"
                   >
                     View Details

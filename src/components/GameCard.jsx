@@ -58,7 +58,7 @@ const GameCard = ({ game }) => {
       
       <div className="mt-4 pt-4 border-t border-gray-100">
         <Link 
-          to={`/game/${game.id}`} 
+          to={`/groundplay/game/${game.id}`} 
           className="btn-primary w-full text-center"
         >
           View Details
